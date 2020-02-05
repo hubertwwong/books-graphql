@@ -1,27 +1,34 @@
-const express = require('express');
-const graphqlHTTP = require('express-graphql');
-const cors = require('cors');
+// // Load the env file in case you are not using docker-compose.
+// require('dotenv').config();
 
-const schema = require('./schema/schema');
+// const express = require('express');
+// const graphqlHTTP = require('express-graphql');
+// const cors = require('cors');
 
-const app = express();
-const port = process.env.PORT || 3000;
+// const schema = require('./schema/schema');
 
-// middleware
-// ===========================================================================
+// const app = express();
+// const port = process.env.PORT || 3000;
 
-// Needed to graphiql
-app.use(cors());
-app.use('/graphql', graphqlHTTP({
-  schema
-}));
+// // middleware
+// // ===========================================================================
 
-// routes
-app.get('/', (req, res) => {
-  res.send('Hello world.');
-  console.log("hello world");
-});
+// // Needed to graphiql
+// app.use(cors());
+// app.use('/graphql', graphqlHTTP({
+//   schema
+// }));
 
-app.listen(port, () => {
-  console.log(`Express is listening on port ${port}`);
-});
+// // routes
+// app.get('/', (req, res) => {
+//   res.send('Hello world.');
+//   console.log("hello world");
+// });
+
+// app.listen(port, () => {
+//   console.log(`Express is listening on port ${port}`);
+// });
+
+// Shorter version
+const servers = require('./servers/servers');
+servers.run();
