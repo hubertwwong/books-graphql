@@ -41,11 +41,56 @@ The basic thing seems to be to.
 
 
 You want to have this signature.
-This allows for nesting.
+
+1. This allows for nesting.
+2. This is so that all of the references of the types are visible first.
+3. Delay execution until runtime which should have access to all types.
+
 ```
 fields: () => ({
 })
 ```
+
+vs.
+
+```
+fields: {}
+```
+
+
+#### Relationships
+
+Go to the type in question.
+In this case `BookType`,
+You want to add an additional field.
+
+1. So book can have an author.
+2. You have to define the resolve function.
+3. The type is the type you defined. In this case AuthorType.
+
+```
+author: {
+      type: AuthorType,
+      resolve(parent, args) {
+        return _.find(authors, {id: parent.authorId});
+      }
+    }
+```
+
+1-many
+
+1. You need a GraphQLList Type
+2. Pass the signular to a new.
+
+```
+type: new GraphQLList(BookType)
+```
+
+The general pattern seems to be to use parent in value..
+```
+_.filter(books, {authorId: parent.id})
+```
+
 
 #### TO use
 
@@ -58,6 +103,18 @@ fields: () => ({
 {
   book(id: "3") {
     name
+  }
+}
+```
+
+Nested query
+```
+{
+  book(id: 1) {
+    name,
+    author {
+      name
+    }
   }
 }
 ```
