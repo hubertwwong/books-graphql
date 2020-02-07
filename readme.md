@@ -1,13 +1,24 @@
 # books
 
+## TL:DR
+
+Just a simple Author Books graphQL demo to learn how graphQL works.
 
 
-## Libs
+
+## To use.
+
+1. `Docker compose up`
+2. Open the html file in the `graphiql` folder in a browser.
+
+
+## Libs used.
 
 1. Express
 2. GraphQL
 3. express-graphql.
-4. CORS middleware (To get other websites to work without worrinng about cross origins.)
+4. CORS middleware. Mostly to bypass warnings with CORS.
+5. Mongoose. Connect to mongo db to have some simple persistance.
 
 
 
@@ -33,22 +44,30 @@ module.exports = new GraphQLSchema({
 ```
 
 
-## Unsorted notes
+## Things I noticed.
 
-The basic thing seems to be to.
-1. Add a ObjectType
-2. Add it to the QueryType.
+1. Circular references must be in the same file. Otherwise there isn't an easy way to import them in node.
+2. Fields. Need the arrow function.
+3. GraphQLList Type needed for a list.
 
-#### Gotcha
+#### Cirrular depenceny
 
-1. The ID objects that get return from the db for lodash to searh through must be string. Probably can improve that.
+When I was following the tutorial I notice a cicrular dependency.
+1. Seems to have issues if you split the schema into different files. One file will not get imported and be undefined.
+2. Probably a design flaw. I think you are suppose to add an intermediary of some sorts to not have this issue in the first place.
+
+https://stackoverflow.com/questions/42531322/graphql-circular-dependency
+https://siawyoung.com/coding/javascript/circular-references-graphql-type-definitions.html
+
+graphql split schema circular dependency
+
+https://medium.com/the-guild/manage-circular-imports-hell-with-graphql-modules-4b1611dee781
 
 
-You want to have this signature.
+###### Fields
 
-1. This allows for nesting.
+1. You want the arrow syntax for delay execution.
 2. This is so that all of the references of the types are visible first.
-3. Delay execution until runtime which should have access to all types.
 
 ```
 fields: () => ({
@@ -62,37 +81,22 @@ fields: {}
 ```
 
 
-#### Relationships
+#### Setting up a nested field.
 
-Go to the type in question.
-In this case `BookType`,
-You want to add an additional field.
-
-1. So book can have an author.
-2. You have to define the resolve function.
-3. The type is the type you defined. In this case AuthorType.
+1. Go to the type in question.
+2. In this case `BookType`,
+3. Add the field name, `author`.
+4. Set the type. `AuthorType`
+5. Define the resolve function `resolve:`
 
 ```
 author: {
       type: AuthorType,
-      resolve(parent, args) {
+      resolve: (parent, args) => {
+        // get data from data source. This was a array for a simple test.
         return _.find(authors, {id: parent.authorId});
       }
     }
-```
-
-1-many
-
-1. You need a GraphQLList Type
-2. Pass the signular to a new.
-
-```
-type: new GraphQLList(BookType)
-```
-
-The general pattern seems to be to use parent in value..
-```
-_.filter(books, {authorId: parent.id})
 ```
 
 #### Mutation
@@ -109,18 +113,23 @@ This is how to update the graphql
 8. You have to return on the resolve function to satisfy the contract.
 
 
-#### TO use
 
-1. Start express.
-2. Open the html file on the grapiql directory.
-
-#### GraphQL queries
+## GraphQL queries examples.
 
 Basic with a args
 Remember that You need a `{}` to start the query.
 ```
 {
   book(id: "3") {
+    name
+  }
+}
+```
+
+Show all books with name
+```
+{
+  books {
     name
   }
 }
@@ -139,7 +148,9 @@ Nested query
 ```
 
 Mutation to add author.
-Remember you need `mutation{}` instead of `{}`
+1. Remember you need `mutation{}` instead of `{}`
+2. Retruns the id.
+
 ```
 mutation {
   addAuthor(name: "foo", age: 42) {
@@ -148,54 +159,7 @@ mutation {
 }
 ```
 
-```
-{
-  "data": {
-    "authors": [
-      {
-        "id": "5e3b2df340a96d001daf6ca0",
-        "name": "foo",
-        "age": 42
-      },
-      {
-        "id": "5e3b2dfa40a96d001daf6ca1",
-        "name": "bar",
-        "age": 42
-      }
-    ]
-  }
-}
-```
-
-```
-{
-  "data": {
-    "books": [
-      {
-        "id": "5e3b2ea140a96d001daf6ca2",
-        "name": "foo 1"
-      },
-      {
-        "id": "5e3b2ea740a96d001daf6ca3",
-        "name": "foo 2"
-      },
-      {
-        "id": "5e3b2ed340a96d001daf6ca4",
-        "name": "LOTR"
-      },
-      {
-        "id": "5e3b2ee140a96d001daf6ca5",
-        "name": null
-      },
-      {
-        "id": "5e3b2efd40a96d001daf6ca6",
-        "name": "Star Wars 2"
-      }
-    ]
-  }
-}
-```
-
+Mutation to update book.
 ```
 mutation {
   updateBook(id: "5e3b2ee140a96d001daf6ca5", authorId: "5e3b2dfa40a96d001daf6ca1") {

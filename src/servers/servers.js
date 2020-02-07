@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const graphqlHTTP = require('express-graphql');
 
 const mongooseAsync = require('./mongooseAsync');
-const schema = require('../schema/schema');
+const schema = require('../graphQLSchema/schema');
 
 let mongoDBconn;
 
